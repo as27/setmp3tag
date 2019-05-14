@@ -42,10 +42,10 @@ func scanDir(genres, artist, album, path string) error {
 			if err != nil {
 				log.Println("Error while opening mp3 file: ", err)
 			}
-			tag.SetGenre(genres)
-			tag.SetArtist(artist)
-			tag.SetAlbum(album)
-			tag.SetTitle(info.Name())
+			tag.SetGenre(escapeName(genres))
+			tag.SetArtist(escapeName(artist))
+			tag.SetAlbum(escapeName(album))
+			tag.SetTitle(escapeName(info.Name()))
 			tag.Save()
 			tag.Close()
 		}
@@ -61,4 +61,35 @@ func useFile(fileName string) bool {
 		}
 	}
 	return false
+}
+
+func escapeName(name string) string {
+	escChars := []struct {
+		old string
+		new string
+	}{
+		{"Ä", "Ae"},
+		{"Ö", "Oe"},
+		{"Ü", "Ue"},
+		{"ä", "ae"},
+		{"ö", "oe"},
+		{"ü", "ue"},
+		{" ", "_"},
+		{"ß", "ss"},
+		{"Á", "A"},
+		{"á", "a"},
+		{"É", "E"},
+		{"é", "e"},
+		{"Í", "I"},
+		{"í", "i"},
+		{"Ó", "O"},
+		{"ó", "o"},
+		{"Ú", "U"},
+		{"ú", "u"},
+		{"", ""},
+	}
+	for _, esc := range escChars {
+		name = strings.ReplaceAll(name, esc.old, esc.new)
+	}
+	return name
 }
